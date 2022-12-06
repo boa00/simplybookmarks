@@ -4,4 +4,13 @@
 
 <h1>Registration page</h1>
 
+<div class="register-forms">
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form }}
+        <button class="register-button" type="submit">Register</button>
+    </form>
+    <p>If you already have an account, you could log-in <a href="/login" target="_blank">here</a></p>
+</div>
+
 {% endblock content %}
