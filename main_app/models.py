@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+import jwt
 from django.db import models
 from django.conf import settings 
 from django.contrib.auth.models import (
@@ -8,7 +11,7 @@ class UserManager(BaseUserManager):
     
     def create_user(self, email, password):
         if email is None:
-            raise TypeError("User must have an enail")
+            raise TypeError("User must have an email")
 
         if password is None:
             raise TypeError("User must have a password")
@@ -27,3 +30,33 @@ class UserManager(BaseUserManager):
         user.save()
 
         return user
+
+class User(AbstractBaseUser, PermissionsMixin):
+
+    objects = UserManager()
+
+    email = models.EmailField(db_index=True, unique=True)
+    activated = models.BooleanField(default=False)
+    alive = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['password']
+
+    def __str__(self):
+        return self.email
+
+    def _generate_jwt_token(self):
+        dt = datetime.now + timedelta(days=1)
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return token.decode("UTF-8")
+
+    @property
+    def token(self):
+        return 1
