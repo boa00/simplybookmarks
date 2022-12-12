@@ -1,10 +1,17 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import (
+    api_view, renderer_classes, permission_classes
+)
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from .forms import NewUserForm
-from .serializer import RegistrationSerializer, LoginSerializer
+from .serializer import (
+    RegistrationSerializer, 
+    LoginSerializer, 
+    UserSerializer,
+)
 from .renderers import UserJSONRenderer
 
 def home_page(request):
@@ -41,4 +48,24 @@ def login_user(request, *args, **kwargs):
     if serializer.is_valid():
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
-    
+
+@api_view(["POST"])
+@renderer_classes([UserJSONRenderer])
+@permission_classes([IsAuthenticated])
+def update_user(request, *args, **kwargs):
+    user = request.data.get("user", {})
+    serializer = UserSerializer(request.user, data=user, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+@renderer_classes([UserJSONRenderer])
+@permission_classes([IsAuthenticated])
+def get_current_user_info(request, *args, **kwargs):
+    serializer = UserSerializer(request.user)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
