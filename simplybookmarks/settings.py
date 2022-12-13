@@ -136,6 +136,6 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'main_app.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'main_app.authentication.backends.JWTAuthentication',
+        'main_app.backends.JWTAuthentication',
     ),
 }

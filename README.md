@@ -22,3 +22,10 @@ TODO
 - Simple landing page with log in and register buttons
 - Log in functionality and styling
 - Register functionality and styling
+
+
+## Components
+
+### List of bookmarks 
+
+Each bookmark is in the rectangle box with title, small description (up to X symbols), category. This box is clickable which leads to the original link. At one of the corners, there is an edit button, which leads to a pop up page. Alongside edit button, there should be delete button as well for simplicity. Also, at one of the corners there should be a list of tags 
