@@ -13,6 +13,7 @@ from .serializer import (
     UserSerializer,
 )
 from .renderers import UserJSONRenderer
+from .google import OpenIDConnectHandler
 
 def home_page(request):
     return render(request, "main_app/home_page.html")
@@ -29,6 +30,13 @@ def register_page(request):
 def login_page(request):
     return render(request, "main_app/login_page.html")
 
+
+def openid_page(request):
+    openid_handler = OpenIDConnectHandler()
+    code = request.GET.get("code")
+    user_data = openid_handler.get_user_data(code=code)
+    print(user_data)
+    return render(request, "main_app/openid_page.html")
 
 @api_view(['POST'])
 @renderer_classes([UserJSONRenderer])
