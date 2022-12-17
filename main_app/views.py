@@ -11,6 +11,7 @@ from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
     UserSerializer,
+    OpenIDLinkSerializer,
 )
 from .renderers import UserJSONRenderer
 from .google import OpenIDConnectHandler
@@ -74,3 +75,14 @@ def update_user(request, *args, **kwargs):
 def get_current_user_info(request, *args, **kwargs):
     serializer = UserSerializer(request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def generate_openid_link(request, *args, **kwargs):
+    openid_handler = OpenIDConnectHandler()
+    openid_link = openid_handler.generate_openid_link()
+    data = {"openid_link": openid_link}
+    serializer = OpenIDLinkSerializer(data=data)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

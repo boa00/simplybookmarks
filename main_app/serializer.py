@@ -68,3 +68,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+class OpenIDLinkSerializer(serializers.Serializer):
+
+    openid_link = serializers.CharField()
