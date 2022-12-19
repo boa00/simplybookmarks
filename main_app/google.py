@@ -20,23 +20,24 @@ class OpenIDConnectHandler:
         self.nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
 
     # move two methods below to the env variables
-    def _get_client_id(self) -> str:
+    @property
+    def client_id(self) -> str:
         secrets_json = open('main_app/openid_secrets.json')
         client_id = json.load(secrets_json)["web"]["client_id"]
         secrets_json.close()
         return client_id
 
-    def _get_client_secfet(self) -> str:
+    @property
+    def client_secret(self) -> str:
         secrets_json = open('main_app/openid_secrets.json')
         client_id = json.load(secrets_json)["web"]["client_secret"]
         secrets_json.close()
         return client_id
 
     def generate_openid_link(self) -> str:
-        client_id = self._get_client_id()
 
         openid_params = {
-            "client_id": client_id,
+            "client_id": self.client_id,
             "response_type": self.response_type,
             "scope": self.scope,
             "redirect_uri": self.redirect_uri,
@@ -48,12 +49,10 @@ class OpenIDConnectHandler:
         return url
 
     def get_access_data(self, code: str) -> dict:
-        client_id = self._get_client_id()
-        client_secret = self._get_client_secfet()
         request_params = {
             "code": code,
-            "client_id": client_id,
-            "client_secret": client_secret,
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
             "redirect_uri": self.redirect_uri,
             "grant_type": "authorization_code"
         }
@@ -92,4 +91,6 @@ def generate_openid_link():
     return url
 
 handler = OpenIDConnectHandler()
+import os
+print(os.environ['HELLO'])
 print(handler.generate_openid_link())

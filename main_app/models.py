@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     email = models.EmailField(db_index=True, unique=True)
+    #access_token = models.TextField(default=None) # used to get the connection, should be hashed
     activated = models.BooleanField(default=False)
     alive = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

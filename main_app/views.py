@@ -37,6 +37,9 @@ def openid_page(request):
     code = request.GET.get("code")
     user_data = openid_handler.get_user_data(code=code)
     print(user_data)
+    # if user already exists with such email, create a session for him and update his access_token
+    # if user does not exist, create user with id_token info and access_token
+    # from id_token: email and name, if name does not exit either fill with None or request to enter it in a pop-up
     return render(request, "main_app/openid_page.html")
 
 @api_view(['POST'])
