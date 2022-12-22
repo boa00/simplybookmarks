@@ -26,11 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # custom 
+    # custom apps
     "main_app.apps.MainAppConfig",
 
     # REST APIs framework
     'rest_framework',
+
+    # enable CORS reqeusts
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -41,6 +44,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'simplybookmarks.urls'
@@ -124,6 +130,12 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'main_app.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'main_app.backends.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
+
+#which URLs are allowed to access through CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+

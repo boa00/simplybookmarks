@@ -9,5 +9,5 @@ urlpatterns = [
     path("api/login/", views.login_user, name="login_user"),
     path("api/user/", views.get_current_user_info, name="current_user_info"),
     path("google_openid/", views.openid_page, name="openid_signin"),
-    path("api/opendid_ling_generator/", views.generate_openid_link, name="generate_openid_link"),
+    path("api/opendid_link_generator/", views.generate_openid_link, name="generate_openid_link"),
 ]

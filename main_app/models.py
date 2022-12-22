@@ -1,6 +1,3 @@
-from datetime import datetime, timedelta
-import jwt
-
 from django.db import models
 from django.conf import settings 
 from django.contrib.auth.models import (
@@ -36,7 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     email = models.EmailField(db_index=True, unique=True)
-    #access_token = models.TextField(default=None) # used to get the connection, should be hashed
+    access_token = models.TextField(null=True, default=None) # used to get the connection to OpenID, should be hashed
     activated = models.BooleanField(default=False)
     alive = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -49,14 +46,4 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def _generate_jwt_token(self):
-        dt = datetime.now() + timedelta(days=1)
-        token = jwt.encode({
-            'id': self.pk,
-            'exp': int(dt.strftime('%s'))
-        }, settings.SECRET_KEY, algorithm='HS256')
-        return token
-
-    @property
-    def token(self):
-        return self._generate_jwt_token()
+    

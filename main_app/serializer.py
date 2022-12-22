@@ -9,11 +9,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
-    token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
-        fields = ["email", "password", "token"]
+        fields = ["email", "password"]
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -21,7 +20,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)
-    token = serializers.CharField(max_length=255, read_only=True)
 
     def validate(self, data):
         email = data.get("email", None)
@@ -39,7 +37,6 @@ class LoginSerializer(serializers.Serializer):
         
         user_data = {
             "email": user.email,
-            "token": user.token
         }
 
         return user_data
@@ -55,8 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "password", "token"]
-        read_only_fields = ('token',)
+        fields = ["email", "password"]
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
