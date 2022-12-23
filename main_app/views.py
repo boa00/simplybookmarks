@@ -5,6 +5,8 @@ from rest_framework.decorators import (
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 
 from .forms import NewUserForm
 from .serializer import (
@@ -12,6 +14,7 @@ from .serializer import (
     LoginSerializer, 
     UserSerializer,
     OpenIDLinkSerializer,
+    CustomTokenObtainPairSerializer
 )
 from .renderers import UserJSONRenderer
 from .google import OpenIDConnectHandler
@@ -59,6 +62,7 @@ def login_user(request, *args, **kwargs):
     user = request.data.get("user", {})
     serializer = LoginSerializer(data=user)
     if serializer.is_valid():
+        print(request.session.session_key)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -89,4 +93,7 @@ def generate_openid_link(request, *args, **kwargs):
     if serializer.is_valid():
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
     
