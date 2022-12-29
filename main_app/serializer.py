@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    # add password checks and return errors if needed
     password = serializers.CharField(
         max_length=128,
         min_length=8,
@@ -19,6 +20,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 class LoginSerializer(serializers.Serializer):
+    # return errors as data if needed
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)
 
