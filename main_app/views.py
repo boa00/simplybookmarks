@@ -1,5 +1,6 @@
+import requests
+
 from django.shortcuts import render
-from django.utils.decorators import method_decorator
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -7,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .forms import NewUserForm
 from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
@@ -37,7 +37,7 @@ class LogInUserView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        user = request.data.get("user", {})
+        user = request.data
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -50,10 +50,12 @@ class RegisterUserView(APIView):
     serializer_class = RegistrationSerializer
 
     def post(self, request):
-        user = request.data.get("user", {})
+        user = request.data
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
             serializer.save()
+            # immidiately log in
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -64,7 +66,7 @@ class UpdateUserView(APIView):
     serializer_class = UserSerializer
 
     def post(self, request):
-        user = request.data.get("user", {})
+        user = request.data
         serializer = self.serializer_class(request.user, data=user, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -79,9 +81,7 @@ class GetCurrentUserInfoView(APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return Response(serializer.data, status=status.HTTP_200_OK) 
 
 
 class GenerateOpenIDLinkView(APIView):
@@ -100,3 +100,7 @@ class GenerateOpenIDLinkView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     
+# login with openid 
+# redirect to google where you confirm cridentials 
+# redirect to separate page which parses GET parameters
+# if user already exists
