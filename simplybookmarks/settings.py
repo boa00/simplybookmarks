@@ -134,14 +134,14 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'main_app.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'main_app.authentication.backends.JWTAuthentication',
+        #'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
 #which URLs are allowed to access through CORS
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://localhost:1337',
 ]
 
 # JWT authentication settings

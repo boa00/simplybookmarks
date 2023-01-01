@@ -1,8 +1,16 @@
+import os
+
+import jwt
+
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.serializers import ValidationError 
+
 from .models import User
+from .utils.tokens import generate_tokens, refresh_token_is_valid
 
 class RegistrationSerializer(serializers.ModelSerializer):
     # add password checks and return errors if needed
@@ -21,28 +29,37 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
     # return errors as data if needed
-    email = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=128, write_only=True)
+    email = serializers.CharField(max_length=255, required=False)
+    password = serializers.CharField(max_length=128, write_only=True, required=False)
+    access = serializers.CharField(max_length=255, required=False)
+    refresh = serializers.CharField(max_length=255, required=False)
 
     def validate(self, data):
         email = data.get("email", None)
         password = data.get("password", None)
 
         if email is None:
-            raise serializers.ValidationError("An email address is required to log in")
+            raise ValidationError("An email address is required to log in")
 
         if password is None:
-            raise serializers.ValidationError("A password is required to log in")
+            raise ValidationError("A password is required to log in")
+
+        try:
+            user = User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            raise ValidationError("A user with such email does not exist")
+
+        if not user.check_password(password):
+            raise ValidationError("A user with such password and email does not exist")
         
-        user = authenticate(username=email, password=password)
-        if user is None:
-            raise serializers.ValidationError("A user with such password and email does not exist")
-        
-        user_data = {
+        payload_data = {
             "email": user.email,
+            "user_id": user.id,
         }
 
-        return user_data
+        tokens = generate_tokens(payload_data=payload_data)
+
+        return tokens
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -79,4 +96,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token['email'] = user.email
         return token
-        
+
+class UpdateTokensSerializer(serializers.Serializer):
+    refresh = serializers.CharField(max_length=255, required=True)
+    access = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, data):
+        if not refresh_token_is_valid(data["refresh"]):
+            raise ValidationError("Refresh token is not valid")
+
+        token_decoded = jwt.decode(data["refresh"], os.environ["SECRET_KEY"], algorithms=["HS256"])
+        payload_data = {
+            "email": token_decoded["email"],
+            "user_id": token_decoded["user_id"],
+        }
+        tokens = generate_tokens(payload_data=payload_data)
+        return tokens

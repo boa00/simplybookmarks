@@ -1,5 +1,3 @@
-import requests
-
 from django.shortcuts import render
 
 from rest_framework import status
@@ -13,10 +11,12 @@ from .serializer import (
     LoginSerializer, 
     UserSerializer,
     OpenIDLinkSerializer,
-    CustomTokenObtainPairSerializer
+    CustomTokenObtainPairSerializer,
+    UpdateTokensSerializer
 )
 from .renderers import UserJSONRenderer
 from .google import OpenIDConnectHandler
+
 
 def home_page(request):
     return render(request, "main_app/home_page.html")
@@ -51,11 +51,10 @@ class RegisterUserView(APIView):
 
     def post(self, request):
         user = request.data
+        print(user)
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
-            serializer.save()
-            # immidiately log in
-            
+            serializer.save()            
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,6 +99,20 @@ class GenerateOpenIDLinkView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     
+
+class UpdateTokensView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = UpdateTokensSerializer
+
+    def post(self, request):
+        refresh_token = request.data
+        serializer = self.serializer_class(data=refresh_token)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 # login with openid 
 # redirect to google where you confirm cridentials 
 # redirect to separate page which parses GET parameters

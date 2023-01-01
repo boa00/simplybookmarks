@@ -9,15 +9,18 @@ from .views import (
     RegisterUserView,
     GetCurrentUserInfoView,
     GenerateOpenIDLinkView,
-    CustomTokenObtainPairView
+    CustomTokenObtainPairView,
+    UpdateTokensView,
 )
 
 urlpatterns = [
     path("", views.home_page),
     
     path("api/register/", RegisterUserView.as_view()),
-    path("api/login/", LogInUserView.as_view()),
     path("api/user/", GetCurrentUserInfoView.as_view()),
+
+    path("api/login/", LogInUserView.as_view()),
+    path("api/update_tokens/", UpdateTokensView.as_view()),
 
     # JWT auth
     path('api/token/', CustomTokenObtainPairView.as_view()),
