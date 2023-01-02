@@ -1,8 +1,9 @@
 import os
+import secrets
+import string
 
 import jwt
 
-from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -11,6 +12,7 @@ from rest_framework.serializers import ValidationError
 
 from .models import User
 from .utils.tokens import generate_tokens, refresh_token_is_valid
+from .google import OpenIDConnectHandler
 
 class RegistrationSerializer(serializers.ModelSerializer):
     # add password checks and return errors if needed
@@ -111,4 +113,42 @@ class UpdateTokensSerializer(serializers.Serializer):
             "user_id": token_decoded["user_id"],
         }
         tokens = generate_tokens(payload_data=payload_data)
+        return tokens
+
+
+class OpenIDConnectSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=255, required=False)
+    refresh = serializers.CharField(max_length=255, required=False)
+    access = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, data):
+        code = data.get("code", None)
+
+        if code is None:
+            raise ValidationError("Code for OpenID connect was not provided")
+
+        openid_handler = OpenIDConnectHandler()
+        user_data = openid_handler.get_user_data(code=code)
+        email = user_data["email"]
+
+        if User.objects.filter(email=email).exists():
+            user_id = User.objects.get(email=email).pk
+        else:
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            password = ''.join(secrets.choice(alphabet) for i in range(25))  
+            new_user_data = {
+                "email": email,
+                "password": password
+            }
+            user = User.objects.create_user(**new_user_data)
+            user_id = user.pk
+
+        
+        payload_data = {
+            "email": email,
+            "user_id": user_id,
+        }
+
+        tokens = generate_tokens(payload_data=payload_data)
+
         return tokens

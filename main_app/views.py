@@ -6,13 +6,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .models import User
 from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
     UserSerializer,
     OpenIDLinkSerializer,
     CustomTokenObtainPairSerializer,
-    UpdateTokensSerializer
+    UpdateTokensSerializer,
+    OpenIDConnectSerializer
 )
 from .renderers import UserJSONRenderer
 from .google import OpenIDConnectHandler
@@ -112,7 +114,30 @@ class UpdateTokensView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class OpenIDConnectView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = OpenIDConnectSerializer
 
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteUserView(APIView):
+    permission_classes = (AllowAny,)
+
+    def delete(self, request):
+        email = request.data["email"]
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 # login with openid 
 # redirect to google where you confirm cridentials 
 # redirect to separate page which parses GET parameters

@@ -13,7 +13,7 @@ class OpenIDConnectHandler:
     toeken_endpoint = "https://oauth2.googleapis.com/token"
     response_type = "code"
     scope = "openid email profile"
-    redirect_uri = "http://127.0.0.1:1337/google_openid"
+    redirect_uri = "http://localhost:3000/google_openid"
     grant_type = "authorization_code"
 
     def __init__(self) -> None:
@@ -59,11 +59,3 @@ class OpenIDConnectHandler:
         }
         return user_data
 
-from rest_framework_simplejwt.tokens import RefreshToken
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
