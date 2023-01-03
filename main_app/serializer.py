@@ -4,15 +4,14 @@ import string
 
 import jwt
 
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import serializers
 from rest_framework.serializers import ValidationError 
 
 from .models import User
 from .utils.tokens import generate_tokens, refresh_token_is_valid
-from .google import OpenIDConnectHandler
+from .utils.google_openid import OpenIDConnectHandler
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     # add password checks and return errors if needed
@@ -27,10 +26,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ["email", "password"]
 
     def create(self, validated_data):
+        if User.objects.filter(email=validated_data["email"]).exists():
+            raise ValidationError("User already exists")
         return User.objects.create_user(**validated_data)
 
+
 class LoginSerializer(serializers.Serializer):
-    # return errors as data if needed
     email = serializers.CharField(max_length=255, required=False)
     password = serializers.CharField(max_length=128, write_only=True, required=False)
     access = serializers.CharField(max_length=255, required=False)
@@ -52,7 +53,7 @@ class LoginSerializer(serializers.Serializer):
             raise ValidationError("A user with such email does not exist")
 
         if not user.check_password(password):
-            raise ValidationError("A user with such password and email does not exist")
+            raise ValidationError("The password is incorrect")
         
         payload_data = {
             "email": user.email,
@@ -89,15 +90,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 class OpenIDLinkSerializer(serializers.Serializer):
 
-    openid_link = serializers.CharField()
+    openid_link = serializers.CharField(max_length=255, required=False)
 
+    def validate(self, data):
+        openid_handler = OpenIDConnectHandler()
+        openid_link = {
+            "openid_link": openid_handler.generate_openid_link()
+        }
+        return openid_link
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['email'] = user.email
-        return token
 
 class UpdateTokensSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255, required=True)

@@ -1,38 +1,19 @@
-from django.shortcuts import render
-
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from .models import User
 from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
     UserSerializer,
-    OpenIDLinkSerializer,
-    CustomTokenObtainPairSerializer,
     UpdateTokensSerializer,
-    OpenIDConnectSerializer
+    OpenIDConnectSerializer,
+    OpenIDLinkSerializer
 )
 from .renderers import UserJSONRenderer
-from .google import OpenIDConnectHandler
 
-
-def home_page(request):
-    return render(request, "main_app/home_page.html")
-
-
-def openid_page(request):
-    openid_handler = OpenIDConnectHandler()
-    code = request.GET.get("code")
-    user_data = openid_handler.get_user_data(code=code)
-    print(user_data)
-    # if user already exists with such email, create a session for him and update his access_token
-    # if user does not exist, create user with id_token info and access_token
-    # from id_token: email and name, if name does not exit either fill with None or request to enter it in a pop-up
-    return render(request, "main_app/openid_page.html")
 
 class LogInUserView(APIView):
     permission_classes = (AllowAny,)
@@ -90,17 +71,11 @@ class GenerateOpenIDLinkView(APIView):
     serializer_class = OpenIDLinkSerializer
 
     def get(self, request):
-        openid_handler = OpenIDConnectHandler()
-        openid_link = openid_handler.generate_openid_link()
-        serializer = self.serializer_class(data={"openid_link": openid_link})
+        serializer = self.serializer_class(data={"": ""})
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-    
 
 class UpdateTokensView(APIView):
     permission_classes = (AllowAny,)
@@ -127,7 +102,7 @@ class OpenIDConnectView(APIView):
 
 
 class DeleteUserView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminUser,)
 
     def delete(self, request):
         email = request.data["email"]
@@ -138,7 +113,3 @@ class DeleteUserView(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# login with openid 
-# redirect to google where you confirm cridentials 
-# redirect to separate page which parses GET parameters
-# if user already exists
