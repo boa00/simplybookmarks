@@ -8,6 +8,8 @@ from .views import (
     UpdateTokensView,
     DeleteUserView,
     OpenIDConnectView,
+    PasswordResetEmailView,
+    PasswordResetView
 )
 
 urlpatterns = [    
@@ -20,4 +22,8 @@ urlpatterns = [
     path('token/refresh/', UpdateTokensView.as_view()),
     path("google_openid/", OpenIDConnectView.as_view()),
     path("opendid_link_generator/", GenerateOpenIDLinkView.as_view()),
+
+    # password 
+    path("password/reset/email/", PasswordResetEmailView.as_view()),
+    path("password/reset/", PasswordResetView.as_view()),
 ]

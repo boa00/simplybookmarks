@@ -10,7 +10,9 @@ from .serializer import (
     UserSerializer,
     UpdateTokensSerializer,
     OpenIDConnectSerializer,
-    OpenIDLinkSerializer
+    OpenIDLinkSerializer,
+    PasswordResetEmailSerializer,
+    PasswordReseSerializer
 )
 from .renderers import UserJSONRenderer
 
@@ -113,3 +115,36 @@ class DeleteUserView(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+class PasswordResetEmailView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = PasswordResetEmailSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordResetView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PasswordReseSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# forgot password leads to a page where you type in you email and hit submit
+# then it directs to another page which says that the email has been sent has been sent
+# backend checks if there is a user whith sent email
+# if exists, it generates a jwt token and sends email with address url/reset&token=jwt_token
+# user enters new password and sends it with Bearer jwt_token from the url 
+# update password requires isAuthenticated, it has optional paramter that requires previous password
+# if success, log user in and redirect to the home page

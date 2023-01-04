@@ -11,6 +11,7 @@ from rest_framework.serializers import ValidationError
 from .models import User
 from .utils.tokens import generate_tokens, refresh_token_is_valid
 from .utils.google_openid import OpenIDConnectHandler
+from .utils.email_sender import send_reset_password_email
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -153,3 +154,57 @@ class OpenIDConnectSerializer(serializers.Serializer):
         tokens = generate_tokens(payload_data=payload_data)
 
         return tokens
+
+class PasswordResetEmailSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255, required=True)
+
+    def validate(self, data):
+        email = data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            raise ValidationError("A user with such email does not exist")
+        
+        user_id = user.pk
+        payload_data = {
+            "email": email,
+            "user_id": user_id,
+        }
+
+        tokens = generate_tokens(payload_data)
+        send_reset_password_email(jwt_token=tokens["access"], reciever=email)
+
+        return email
+
+class PasswordReseSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255, required=True)
+    new_password = serializers.CharField(max_length=255, required=True)
+    old_password_requested = serializers.BooleanField(required=True) 
+    old_password = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, data):
+        email = data["email"]
+        new_password = data["new_password"]
+        old_password_requested = data["old_password_requested"]
+        old_password = data.get("old_password", None)
+        
+        try:
+            user = User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            raise ValidationError("A user with such email does not exist")
+
+        if old_password_requested:
+            if old_password is None:
+                raise ValidationError("The old password is required")
+            if not user.check_password(old_password):
+                raise ValidationError("The old password is incorrect")
+
+        if user.check_password(new_password):
+            raise ValidationError("The new password is the same as the old one")
+        
+        user.set_password(new_password)
+        user.save()
+
+        return email
+            
