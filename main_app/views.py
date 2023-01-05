@@ -1,9 +1,9 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .models import User
+from .models import User, Bookmark
 from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
@@ -12,7 +12,8 @@ from .serializer import (
     OpenIDConnectSerializer,
     OpenIDLinkSerializer,
     PasswordResetEmailSerializer,
-    PasswordReseSerializer
+    PasswordReseSerializer,
+    BookmarkSerializer
 )
 from .renderers import UserJSONRenderer
 
@@ -36,7 +37,6 @@ class RegisterUserView(APIView):
 
     def post(self, request):
         user = request.data
-        print(user)
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
             serializer.save()            
@@ -137,14 +137,19 @@ class PasswordResetView(APIView):
         if serializer.is_valid():
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+
+class BookmarkListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Bookmark.objects.all()
+    serializer_class = BookmarkSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
+class BookmarkRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Bookmark.objects.all()
+    serializer_class = BookmarkSerializer
 
-
-# forgot password leads to a page where you type in you email and hit submit
-# then it directs to another page which says that the email has been sent has been sent
-# backend checks if there is a user whith sent email
-# if exists, it generates a jwt token and sends email with address url/reset&token=jwt_token
-# user enters new password and sends it with Bearer jwt_token from the url 
-# update password requires isAuthenticated, it has optional paramter that requires previous password
-# if success, log user in and redirect to the home page

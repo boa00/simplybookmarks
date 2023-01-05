@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError 
 
-from .models import User
+from .models import User, Bookmark
 from .utils.tokens import generate_tokens, refresh_token_is_valid
 from .utils.google_openid import OpenIDConnectHandler
 from .utils.email_sender import send_reset_password_email
@@ -208,3 +208,10 @@ class PasswordReseSerializer(serializers.Serializer):
 
         return email
             
+
+class BookmarkSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Bookmark
+        fields = "__all__"
+        read_only_fields = ['user']

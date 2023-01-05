@@ -9,7 +9,10 @@ from .views import (
     DeleteUserView,
     OpenIDConnectView,
     PasswordResetEmailView,
-    PasswordResetView
+    PasswordResetView,
+
+    BookmarkListCreateView,
+    BookmarkRetrieveUpdateDestroyView
 )
 
 urlpatterns = [    
@@ -26,4 +29,8 @@ urlpatterns = [
     # password 
     path("password/reset/email/", PasswordResetEmailView.as_view()),
     path("password/reset/", PasswordResetView.as_view()),
+
+    # bookmarks
+    path("bookmarks/", BookmarkListCreateView.as_view()),
+    path("bookmarks/<int:pk>/", BookmarkRetrieveUpdateDestroyView.as_view()),
 ]
