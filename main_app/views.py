@@ -13,7 +13,8 @@ from .serializer import (
     OpenIDLinkSerializer,
     PasswordResetEmailSerializer,
     PasswordReseSerializer,
-    BookmarkSerializer
+    BookmarkSerializer,
+    GetPageTitleViewSerializer
 )
 from .renderers import UserJSONRenderer
 
@@ -153,3 +154,14 @@ class BookmarkRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
 
+
+class GetPageTitleView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = GetPageTitleViewSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

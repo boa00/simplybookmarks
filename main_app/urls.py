@@ -12,19 +12,21 @@ from .views import (
     PasswordResetView,
 
     BookmarkListCreateView,
-    BookmarkRetrieveUpdateDestroyView
+    BookmarkRetrieveUpdateDestroyView,
+
+    GetPageTitleView,
 )
 
 urlpatterns = [    
     path("user/", GetCurrentUserInfoView.as_view()),
-    path("user/delete", DeleteUserView.as_view()),
+    path("user/delete/", DeleteUserView.as_view()),
 
     # auth
     path("register/", RegisterUserView.as_view()),
     path('token/', LogInUserView.as_view()),
     path('token/refresh/', UpdateTokensView.as_view()),
-    path("google_openid/", OpenIDConnectView.as_view()),
-    path("opendid_link_generator/", GenerateOpenIDLinkView.as_view()),
+    path("google-openid/", OpenIDConnectView.as_view()),
+    path("opendid-link-generator/", GenerateOpenIDLinkView.as_view()),
 
     # password 
     path("password/reset/email/", PasswordResetEmailView.as_view()),
@@ -33,4 +35,7 @@ urlpatterns = [
     # bookmarks
     path("bookmarks/", BookmarkListCreateView.as_view()),
     path("bookmarks/<int:pk>/", BookmarkRetrieveUpdateDestroyView.as_view()),
+
+    # utils 
+    path("external-title/", GetPageTitleView.as_view()),
 ]

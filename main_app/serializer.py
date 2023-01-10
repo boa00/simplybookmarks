@@ -12,6 +12,7 @@ from .models import User, Bookmark
 from .utils.tokens import generate_tokens, refresh_token_is_valid
 from .utils.google_openid import OpenIDConnectHandler
 from .utils.email_sender import send_reset_password_email
+from .utils.title_parser import get_page_title
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -215,3 +216,22 @@ class BookmarkSerializer(serializers.ModelSerializer):
         model = Bookmark
         fields = "__all__"
         read_only_fields = ['user']
+
+
+class GetPageTitleViewSerializer(serializers.Serializer):
+    url = serializers.CharField(required=False)
+    title = serializers.CharField(required=False)
+
+    def validate(self, data):
+        url = data.get("url", None)
+        if url is None:
+            raise ValidationError("URL is required")
+
+        title = get_page_title(url)
+        
+        title_data = {
+            "title": title
+        }
+        
+        return title_data
+    
