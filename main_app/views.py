@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .models import User, Bookmark
+from .models import User, Bookmark, Tag
 from .serializer import (
     RegistrationSerializer, 
     LoginSerializer, 
@@ -14,7 +14,8 @@ from .serializer import (
     PasswordResetEmailSerializer,
     PasswordReseSerializer,
     BookmarkSerializer,
-    GetPageTitleViewSerializer
+    GetPageTitleViewSerializer,
+    TagSerializer
 )
 from .renderers import UserJSONRenderer
 
@@ -153,6 +154,21 @@ class BookmarkRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
+
+
+class TagListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class TagRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 
 
 class GetPageTitleView(APIView):

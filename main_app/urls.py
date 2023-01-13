@@ -10,11 +10,11 @@ from .views import (
     OpenIDConnectView,
     PasswordResetEmailView,
     PasswordResetView,
-
     BookmarkListCreateView,
     BookmarkRetrieveUpdateDestroyView,
-
     GetPageTitleView,
+    TagListCreateView,
+    TagRetrieveUpdateDestroyView,
 )
 
 urlpatterns = [    
@@ -35,6 +35,8 @@ urlpatterns = [
     # bookmarks
     path("bookmarks/", BookmarkListCreateView.as_view()),
     path("bookmarks/<int:pk>/", BookmarkRetrieveUpdateDestroyView.as_view()),
+    path("bookmarks/tags/", TagListCreateView.as_view()),
+    path("bookmarks/tags/<int:pk>/", TagRetrieveUpdateDestroyView.as_view()),
 
     # utils 
     path("external-title/", GetPageTitleView.as_view()),

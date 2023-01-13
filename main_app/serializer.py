@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError 
 
-from .models import User, Bookmark
+from .models import User, Bookmark, Tag
 from .utils.tokens import generate_tokens, refresh_token_is_valid
 from .utils.google_openid import OpenIDConnectHandler
 from .utils.email_sender import send_reset_password_email
@@ -30,7 +30,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if User.objects.filter(email=validated_data["email"]).exists():
             raise ValidationError("User already exists")
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
@@ -210,12 +211,37 @@ class PasswordReseSerializer(serializers.Serializer):
         return email
             
 
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = "__all__"
+        read_only_fields = ['user']
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
+    tags = serializers.SlugRelatedField(
+        many=True, 
+        queryset=Tag.objects.all(),
+        required=False,
+        slug_field='name'
+    ) 
 
     class Meta:
         model = Bookmark
         fields = "__all__"
         read_only_fields = ['user']
+        
+
+    # def create(self, validated_data):
+    #     print(validated_data["user"].id)
+    #     tags = validated_data["tags"]
+    #     bookmark = Bookmark.objects.create(**validated_data)
+    #     for tag in tags:
+    #         tag_obj = Tag.objects.get(name=tag)
+    #         bookmark.tags.add(tag_obj)
+    #         bookmark.save()
+    #     return validated_data
 
 
 class GetPageTitleViewSerializer(serializers.Serializer):

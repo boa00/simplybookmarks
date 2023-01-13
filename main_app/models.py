@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings 
 from django.contrib.auth.models import (
 	AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
@@ -47,12 +46,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
+class Tag(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    name = models.CharField(max_length=50, db_index=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    title = models.CharField(max_length=200)
+    tags = models.ManyToManyField(Tag, null=True, blank=True)
+    title = models.CharField(max_length=300)
     link = models.TextField(null=False)
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    
+
+# get list of tags for each user and suggest them while adding a new bookmakr
+# add new tag
