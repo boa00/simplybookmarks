@@ -143,32 +143,44 @@ class PasswordResetView(APIView):
 
 class BookmarkListCreateView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Bookmark.objects.all().filter(user=user)
 
 
 class BookmarkRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Bookmark.objects.all()
     serializer_class = BookmarkSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Bookmark.objects.all().filter(user=user)
 
 
 class TagListCreateView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Tag.objects.all().filter(user=user)
 
 
 class TagRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Bookmark.objects.all().filter(user=user)
 
 
 class GetPageTitleView(APIView):

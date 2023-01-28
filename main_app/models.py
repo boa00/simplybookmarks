@@ -48,9 +48,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Tag(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    name = models.CharField(max_length=50, db_index=True, unique=True)
+    name = models.CharField(max_length=50, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('name', 'user'),)
     
 
 class Bookmark(models.Model):
@@ -61,7 +64,3 @@ class Bookmark(models.Model):
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-
-
-# get list of tags for each user and suggest them while adding a new bookmakr
-# add new tag

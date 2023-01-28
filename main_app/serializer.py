@@ -182,25 +182,15 @@ class PasswordResetEmailSerializer(serializers.Serializer):
 class PasswordReseSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255, required=True)
     new_password = serializers.CharField(max_length=255, required=True)
-    old_password_requested = serializers.BooleanField(required=True) 
-    old_password = serializers.CharField(max_length=255, required=False)
 
     def validate(self, data):
         email = data["email"]
         new_password = data["new_password"]
-        old_password_requested = data["old_password_requested"]
-        old_password = data.get("old_password", None)
         
         try:
             user = User.objects.get(email=email)
         except ObjectDoesNotExist:
             raise ValidationError("A user with such email does not exist")
-
-        if old_password_requested:
-            if old_password is None:
-                raise ValidationError("The old password is required")
-            if not user.check_password(old_password):
-                raise ValidationError("The old password is incorrect")
 
         if user.check_password(new_password):
             raise ValidationError("The new password is the same as the old one")
@@ -232,16 +222,6 @@ class BookmarkSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ['user']
         
-
-    # def create(self, validated_data):
-    #     print(validated_data["user"].id)
-    #     tags = validated_data["tags"]
-    #     bookmark = Bookmark.objects.create(**validated_data)
-    #     for tag in tags:
-    #         tag_obj = Tag.objects.get(name=tag)
-    #         bookmark.tags.add(tag_obj)
-    #         bookmark.save()
-    #     return validated_data
 
 
 class GetPageTitleViewSerializer(serializers.Serializer):
