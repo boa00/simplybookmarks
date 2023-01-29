@@ -2,6 +2,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.pagination import LimitOffsetPagination
 
 from .models import User, Bookmark, Tag
 from .serializer import (
@@ -141,9 +142,14 @@ class PasswordResetView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
+class BookmarkPagination(LimitOffsetPagination):
+    default_limit = 5
+
+
 class BookmarkListCreateView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = BookmarkSerializer
+    pagination_class = BookmarkPagination
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

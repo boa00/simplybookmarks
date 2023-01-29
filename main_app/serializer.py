@@ -209,10 +209,17 @@ class TagSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
 
+class TagSlugFieldSerializer(serializers.SlugRelatedField):
+
+    def get_queryset(self):
+        request = self.context.get('request', None)
+        queryset = Tag.objects.all().filter(user=request.user)
+        return queryset
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
-    tags = serializers.SlugRelatedField(
+    tags = TagSlugFieldSerializer(
         many=True, 
-        queryset=Tag.objects.all(),
         required=False,
         slug_field='name'
     ) 
