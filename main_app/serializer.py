@@ -16,7 +16,6 @@ from .utils.title_parser import get_page_title
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    # add password checks and return errors if needed
     password = serializers.CharField(
         max_length=128,
         min_length=8,
@@ -218,6 +217,7 @@ class TagSlugFieldSerializer(serializers.SlugRelatedField):
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
+    tag_id = serializers.IntegerField(required=False)
     tags = TagSlugFieldSerializer(
         many=True, 
         required=False,
