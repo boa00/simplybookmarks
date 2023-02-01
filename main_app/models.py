@@ -34,7 +34,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     email = models.EmailField(db_index=True, unique=True)
-    access_token = models.TextField(null=True, default=None) # used to get the connection to OpenID, should be hashed
     activated = models.BooleanField(default=False)
     alive = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -97,7 +96,7 @@ class BookmarkManager(models.Manager):
     def sort(self, order):
         return self.get_queryset().sort(order=order)
 
-        
+
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     tags = models.ManyToManyField(Tag, null=True, blank=True)
