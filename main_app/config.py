@@ -6,5 +6,5 @@ class OpenIDConfig(BaseModel):
     token_endpoint: str = "https://oauth2.googleapis.com/token"
     response_type: str = "code"
     scope: str = "openid email profile"
-    redirect_uri: str = "http://localhost:3000/google_openid"
+    redirect_uri: str = "https://simplybookmarks.com/google_openid"
     grant_type: str = "authorization_code"

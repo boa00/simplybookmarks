@@ -185,10 +185,12 @@ class TagRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = TagSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
     def get_queryset(self):
         user = self.request.user
-        return Bookmark.objects.all().filter(user=user)
-
+        return Tag.objects.all().filter(user=user)
 
 class GetPageTitleView(APIView):
     permission_classes = (IsAuthenticated,)

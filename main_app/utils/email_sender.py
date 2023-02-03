@@ -22,7 +22,7 @@ def generate_email(mail_reciever: str, mail_subject: str, mail_content: str) -> 
     return message
 
 def generate_reset_password_content(jwt_token: str) -> str:
-    url = f"http://localhost:3000/reset_password/forms/{jwt_token}"
+    url = f"https://simplybookmarks.com/reset_password/forms/{jwt_token}"
     content = " To update password, go to the following page: <br>" + url + "<br><br> If you accedentally recieved this message, please, ignore it"
     return content
 
