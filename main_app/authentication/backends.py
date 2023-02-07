@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 
 import jwt
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,7 +32,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
 
         return self._authenticate_credentials(token)
 
-    def _authenticate_credentials(self, token):
+    def _authenticate_credentials(self, token) -> Tuple[User, None]:
         try:
             decoded_token = jwt.decode(token, os.environ["SECRET_KEY"], algorithms=["HS256"])
         except ExpiredSignatureError:

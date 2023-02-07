@@ -1,6 +1,7 @@
 import os
 import secrets
 import string
+from typing import Dict
 
 import jwt
 
@@ -26,7 +27,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "password"]
 
-    def create(self, validated_data):
+    def create(self, validated_data) -> User:
         if User.objects.filter(email=validated_data["email"]).exists():
             raise ValidationError("User already exists")
         user = User.objects.create_user(**validated_data)
@@ -39,7 +40,7 @@ class LoginSerializer(serializers.Serializer):
     access = serializers.CharField(max_length=255, required=False)
     refresh = serializers.CharField(max_length=255, required=False)
 
-    def validate(self, data):
+    def validate(self, data) -> Dict[str, str]:
         email = data.get("email", None)
         password = data.get("password", None)
 
@@ -79,7 +80,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "password"]
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data) -> User:
         password = validated_data.pop('password', None)
         for key, value in validated_data.items():
             setattr(instance, key, value)
@@ -94,7 +95,7 @@ class OpenIDLinkSerializer(serializers.Serializer):
 
     openid_link = serializers.CharField(max_length=255, required=False)
 
-    def validate(self, data):
+    def validate(self, data) -> Dict[str, str]:
         openid_handler = OpenIDConnectHandler()
         openid_link = {
             "openid_link": openid_handler.generate_openid_link()
@@ -106,7 +107,7 @@ class UpdateTokensSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255, required=True)
     access = serializers.CharField(max_length=255, required=False)
 
-    def validate(self, data):
+    def validate(self, data) -> Dict[str, str]:
         if not refresh_token_is_valid(data["refresh"]):
             raise ValidationError("Refresh token is not valid")
 
@@ -124,7 +125,7 @@ class OpenIDConnectSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=255, required=False)
     access = serializers.CharField(max_length=255, required=False)
 
-    def validate(self, data):
+    def validate(self, data) -> Dict[str, str]:
         code = data.get("code", None)
 
         if code is None:
@@ -235,7 +236,7 @@ class GetPageTitleViewSerializer(serializers.Serializer):
     url = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
 
-    def validate(self, data):
+    def validate(self, data) -> str:
         url = data.get("url", None)
         if url is None:
             raise ValidationError("URL is required")

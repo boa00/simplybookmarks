@@ -24,7 +24,7 @@ class LogInUserView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         user = request.data
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
@@ -37,7 +37,7 @@ class RegisterUserView(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         user = request.data
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
@@ -51,7 +51,7 @@ class UpdateUserView(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         user = request.data
         serializer = self.serializer_class(request.user, data=user, partial=True)
         if serializer.is_valid():
@@ -65,7 +65,7 @@ class GetCurrentUserInfoView(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
-    def get(self, request):
+    def get(self, request) -> Response:
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK) 
 
@@ -74,7 +74,7 @@ class GenerateOpenIDLinkView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = OpenIDLinkSerializer
 
-    def get(self, request):
+    def get(self, request) -> Response:
         serializer = self.serializer_class(data={"": ""})
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -85,7 +85,7 @@ class UpdateTokensView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = UpdateTokensSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         refresh_token = request.data
         serializer = self.serializer_class(data=refresh_token)
         if serializer.is_valid():
@@ -97,7 +97,7 @@ class OpenIDConnectView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = OpenIDConnectSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
@@ -108,7 +108,7 @@ class OpenIDConnectView(APIView):
 class DeleteUserView(APIView):
     permission_classes = (IsAdminUser,)
 
-    def delete(self, request):
+    def delete(self, request) -> Response:
         email = request.data["email"]
         try:
             user = User.objects.get(email=email)
@@ -122,7 +122,7 @@ class PasswordResetEmailView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetEmailSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
@@ -133,7 +133,7 @@ class PasswordResetView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordReseSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
@@ -196,7 +196,7 @@ class GetPageTitleView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = GetPageTitleViewSerializer
 
-    def post(self, request):
+    def post(self, request) -> Response:
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
